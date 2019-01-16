@@ -9,7 +9,8 @@
 //----------------------------------------------------------------------------------
 
 #define NUM_MAX_POPPERS 1000
-#define NUM_POPPERS 500
+#define NUM_POPPERS 200
+#define POPPER_SIZE 20
 
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
@@ -47,6 +48,7 @@ int main()
 {
     // Window init
     InitWindow(screenWidth, screenHeight, "Pop that!");
+    // Initialize game
     InitGame();
     SetTargetFPS(60);
     
@@ -74,45 +76,20 @@ int getRandom(int bound)
 //------------------------------------------------------------------------------------
 void InitGame(void)
 {
-    int one = 0;
-    int two = -60;
+
     for(int i = 0; i < NUM_POPPERS; i++) 
     {
         Sprite sprite;
         sprite.id = i;
-        
-        //Vector2 position = {getRandom(1000), -60};
-
-        
-        if ((i % 6) == 0) {
-            for(int j = 0; j < 150; j++) {
-                one++;
-            }
-        }
-        else if ((i % 3) == 0) {
-            for(int j = 0; j < 150; j++) {
-                one++;
-            }
-        }
-        else if ((i % 2) == 0) {
-            for(int j = 0; j < 10; j++) {
-                one++;
-            }
-           // two = 328;
-        } else {
-            one = getRandom(1000);
-           // two = getRandom(1000);            
-        }      
-        
-        Vector2 position = {one, two};
+        Vector2 position = {getRandom(1280), -60};
         sprite.position = position;
-        if ((i % 3) == 0) {
+        if ((i % 2) == 0) {
             sprite.color = PINK;
-            sprite.speed = 13.8; 
+            sprite.speed = 1.0; 
         }
         else if (i == 10) {
             sprite.color = RED;
-            sprite.speed = 20.0;
+            sprite.speed = 1.3;
         } else {
            sprite.color = DARKBLUE;
            sprite.speed = 1.8;              
@@ -135,30 +112,41 @@ void UpdateGame(void){
         
         //Check if the ball was clicked
         if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && 
-            (CheckCollisionPointCircle(GetMousePosition(),
-            position, 40))){
-                
-
+        (CheckCollisionPointCircle(GetMousePosition(), position, POPPER_SIZE))){
             
             if (ColorToInt(color) == ColorToInt(PINK)) {
                 sprite.color = RED;   
-                modifier = 20.0;                
+                sprite.speed = 4.8;              
             } else if (ColorToInt(color) == ColorToInt(RED)){
                 sprite.color = DARKBLUE;
                 modifier = 1.8;                 
             } else {
                 sprite.color = PINK;
-                modifier = 13.8;              
+                sprite.speed = 1.0;  
             }
         }        
-        
-        
-         
-        
-        
-        Vector2 ballPosition5 = {(sprite.position.x), (sprite.position.y + 1*(modifier)) };
-        sprite.position = ballPosition5; 
-        poppers[i] = sprite;
+  
+        //Check to see if impacted wall
+        if (sprite.position.x >= 1260 && sprite.position.y <= 700) {
+            Vector2 newPos = {(sprite.position.x), (sprite.position.y + 1*(sprite.speed))};
+            sprite.position = newPos; 
+            poppers[i] = sprite;            
+        } 
+        else if (sprite.position.y >= 700) {
+            Vector2 newPos = {(sprite.position.x), (sprite.position.y)};
+            sprite.position = newPos; 
+            poppers[i] = sprite;            
+        }          
+        else if ((sprite.position.x >= 1260) && (sprite.position.y >= 700)){
+            Vector2 newPos = {(sprite.position.x), (sprite.position.y)};
+            sprite.position = newPos; 
+            poppers[i] = sprite;     
+        } else {
+            //If no impact, behave normally
+            Vector2 newPos = {(sprite.position.x += 1), (sprite.position.y + 1*(sprite.speed))};
+            sprite.position = newPos; 
+            poppers[i] = sprite;
+        }     
     }
 }
 
@@ -171,7 +159,7 @@ void DrawGame(void){
         for(int i = 0; i < NUM_POPPERS; i++) 
         {
             Sprite sprite = poppers[i];
-            DrawCircleV(sprite.position, 40, sprite.color);
+            DrawCircleV(sprite.position, POPPER_SIZE, sprite.color);
         }
 
     EndDrawing();
