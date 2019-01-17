@@ -30,10 +30,9 @@ typedef struct Sprite{
 
 static int screenWidth = 1280;
 static int screenHeight = 720;
-static Sprite poppers[NUM_MAX_POPPERS];
-static int xPos[NUM_MAX_POPPERS];           // used to make sure sprites do not spawn in same spot
 static int clicks = 0;
-
+static int aliveSprites = 0;
+static Sprite poppers[NUM_MAX_POPPERS];
 
 //------------------------------------------------------------------------------------
 // Module Functions Declaration (local)
@@ -42,6 +41,7 @@ static void InitGame(void);         // Initialize game
 static void UpdateGame(void);       // Update game (one frame)
 static void DrawGame(void);         // Draw game (one frame)
 static void UpdateDrawFrame(void);  // Update and Draw (one frame)
+static Vector2 verifyNoCollision(Vector2 position);
 
 //------------------------------------------------------------------------------------
 // Main function and game loop
@@ -70,23 +70,24 @@ int main()
 //------------------------------------------------------------------------------------
 void InitGame(void)
 {
-
     for(int i = 0; i < NUM_POPPERS; i++) 
     {
         Sprite sprite;
         sprite.id = i;
-        sprite.alive = 1;
-        int rand = GetRandomValue(0, 1280);
-        
-        
-        Vector2 position = {rand, -60};  
-        sprite.position = position;
-        sprite.color = RED;
         sprite.speed = 1.3;
+        sprite.alive = 1;
+        sprite.color = RED;
+        
+        // Generate random x value
+        int rand = GetRandomValue(50, 1230);
+        Vector2 position = {rand, -60};  
+        sprite.position = verifyNoCollision(position);
+        // Add the sprite to the array of sprites
         poppers[i] = sprite;
-
-        printf("Created sprite %d \n", sprite.id);
-        fflush(NULL);
+        aliveSprites++;
+        
+        //printf("Created sprite %d \n", sprite.id);
+        //fflush(NULL);
         
     }
 }
@@ -106,6 +107,7 @@ void UpdateGame(void){
             
             poppers[i].alive = 0;
             clicks++;
+            
         }  
         else {      
 
@@ -145,16 +147,21 @@ void UpdateGame(void){
 //------------------------------------------------------------------------------------
 void DrawGame(void){
     BeginDrawing();
+    
         ClearBackground(RAYWHITE);
+        
         for(int i = 0; i < NUM_POPPERS; i++) 
         {
             Sprite sprite = poppers[i];
+            
             //printf("%d \n", sprite.alive);
             //fflush(NULL);
+            
             if (sprite.alive == 1) {
-              DrawCircleV(sprite.position, POPPER_SIZE, sprite.color);              
+                
+              DrawCircleV(sprite.position, POPPER_SIZE, sprite.color);   
+              
             }
-
         }
 
     EndDrawing();
@@ -167,4 +174,30 @@ void UpdateDrawFrame(void)
 {  
     UpdateGame();
     DrawGame();
+}
+
+Vector2 verifyNoCollision(Vector2 position) {
+
+    for (int i = 0; i < aliveSprites; i++) {
+
+        if(CheckCollisionCircles(position, 35, poppers[i].position, 35)) {
+            
+            // printf("collision detected with Sprite %d \n", poppers[i].id);
+            
+            int rand = GetRandomValue(50, 1230);
+            
+            Vector2 anotherPos = {rand, -60};
+            
+            // printf("position before, %d \n", position);
+            
+            position = anotherPos;
+            
+            // printf("position after, %d \n", position);
+            
+            i = 0;    
+        }
+   
+    }
+   
+    return position;
 }
