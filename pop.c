@@ -9,7 +9,7 @@
 //----------------------------------------------------------------------------------
 
 #define NUM_MAX_POPPERS 1000
-#define NUM_POPPERS 200
+#define NUM_POPPERS 50
 #define POPPER_SIZE 20
 
 //----------------------------------------------------------------------------------
@@ -30,6 +30,7 @@ typedef struct Sprite{
 static int screenWidth = 1280;
 static int screenHeight = 720;
 static Sprite poppers[NUM_MAX_POPPERS];
+static int clicks = 0;
 
 
 //------------------------------------------------------------------------------------
@@ -124,6 +125,7 @@ void UpdateGame(void){
                 sprite.color = PINK;
                 sprite.speed = 1.0;  
             }
+            clicks++;
         }        
   
         //Check to see if impacted wall
@@ -143,10 +145,14 @@ void UpdateGame(void){
             poppers[i] = sprite;     
         } else {
             //If no impact, behave normally
-            Vector2 newPos = {(sprite.position.x += 1), (sprite.position.y + 1*(sprite.speed))};
+            Vector2 newPos = {(sprite.position.x), (sprite.position.y + 1*(sprite.speed))};
             sprite.position = newPos; 
             poppers[i] = sprite;
-        }     
+        }
+        char score[3];
+        sprintf(score, "%d", clicks);
+        DrawText("SCORE: ", 0, 0, 25, BLACK); 
+        DrawText(score, 100, 0, 25, BLACK);         
     }
 }
 
