@@ -24,6 +24,9 @@ typedef struct Sprite{
     bool alive;
 } Sprite;
 
+
+
+
 //------------------------------------------------------------------------------------
 // Global Variables Declaration
 //------------------------------------------------------------------------------------
@@ -232,8 +235,9 @@ void DrawGame(void){
             // If the one we are looking at is alive...
             if (poppers[i].alive == 1) {
                 
-              // Draw it to the screen 
-              DrawCircleV(poppers[i].position, POPPER_SIZE, poppers[i].color);   
+                // Draw it to the screen 
+                DrawCircleV(poppers[i].position, POPPER_SIZE, poppers[i].color); 
+                DrawText("hi", poppers[i].position.x-7,  poppers[i].position.y-10, 20, BLACK);
               
             }
         }
