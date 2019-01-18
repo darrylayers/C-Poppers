@@ -22,6 +22,8 @@ typedef struct Sprite{
     Color color;
     double speed;
     bool alive;
+    char operation[8];
+    int result;
 } Sprite;
 
 
@@ -97,6 +99,47 @@ void InitGame(void)
         sprite.speed = 1.3;
         sprite.alive = 1;
         
+        
+        // add the default template to the operation array
+        // operand1 + operand2
+        // each operand can be two chars, so 7 chars needed
+        int op1_1 = GetRandomValue(1,9);
+        int op1_2 = GetRandomValue(1,9);
+        int op2_1 = GetRandomValue(1,9);
+        int op2_2 = GetRandomValue(1,9);
+        
+
+        
+        sprite.operation[0] = op1_1 + '0';
+        sprite.operation[1] = op1_2 + '0';
+        sprite.operation[2] = ' ';
+        sprite.operation[3] = '+';
+        sprite.operation[4] = ' ';
+        sprite.operation[5] = op2_1 + '0';
+        sprite.operation[6] = op2_2 + '0';
+        sprite.operation[7] = '\0';
+
+        
+        int num = (sprite.operation[0]-'0')*10+(sprite.operation[1]-'0');
+        int num2 = (sprite.operation[5]-'0')*10+(sprite.operation[6]-'0');
+        
+        printf("num1 %d \n ", num);
+        printf("num2 %d \n ", num2);
+        sprite.result = num + num2;
+        printf("result %d \n ", sprite.result);
+        
+        printf("Expression: ");
+        for(int p = 0; p < 7; p++){ 
+            if(p == 3) {
+                printf(" %c ", sprite.operation[p]);
+            } else {
+                printf("%c", sprite.operation[p]);
+            }
+            
+        }  
+        printf("\n");        
+        fflush(NULL);
+        
         // Distribute the 3 colors below to the sprites by id
         if((sprite.id % 2) == 0){
             sprite.color = RED;
@@ -146,7 +189,12 @@ void UpdateGame(void){
             // Kill the sprite and increment the dead sprite count
             if(poppers[i].alive == 1){
                 poppers[i].alive = 0;
-                deadSprites++;    
+                deadSprites++;
+                printf("Sprite result was: %d \n", poppers[i].result);
+
+                printf("\n");
+                fflush(NULL);
+                
             }
         }  
         else {      
