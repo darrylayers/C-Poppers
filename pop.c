@@ -9,7 +9,7 @@
 //----------------------------------------------------------------------------------
 
 #define NUM_MAX_POPPERS 500
-#define NUM_POPPERS 20
+#define NUM_POPPERS 20        // current safe maximum is 110, less that 100 suggested
 #define POPPER_SIZE 20
 
 //----------------------------------------------------------------------------------
@@ -93,7 +93,18 @@ void InitGame(void)
         sprite.id = i;
         sprite.speed = 1.3;
         sprite.alive = 1;
-        sprite.color = DARKBLUE;
+        
+        // Distribute the 3 colors below to the sprites by id
+        if((sprite.id % 2) == 0){
+            sprite.color = RED;
+        }
+        else if((sprite.id % 3) == 0){
+            sprite.color = PINK;
+        } 
+        else if (((sprite.id % 1) == 0)){
+            sprite.color = DARKBLUE;
+        }
+        
         
         // Generate random x and y values
         int x = GetRandomValue(50, 1230);
