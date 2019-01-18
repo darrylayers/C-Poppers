@@ -96,10 +96,9 @@ void InitGame(void)
     {
         Sprite sprite;
         sprite.id = i;
-        sprite.speed = 1.3;
+        sprite.speed = 1.0;
         sprite.alive = 1;
-        
-        
+
         // add the default template to the operation array
         // operand1 + operand2
         // each operand can be two chars, so 7 chars needed
@@ -107,9 +106,7 @@ void InitGame(void)
         int op1_2 = GetRandomValue(1,9);
         int op2_1 = GetRandomValue(1,9);
         int op2_2 = GetRandomValue(1,9);
-        
-
-        
+                
         sprite.operation[0] = op1_1 + '0';
         sprite.operation[1] = op1_2 + '0';
         sprite.operation[2] = ' ';
@@ -119,7 +116,6 @@ void InitGame(void)
         sprite.operation[6] = op2_2 + '0';
         sprite.operation[7] = '\0';
 
-        
         int num = (sprite.operation[0]-'0')*10+(sprite.operation[1]-'0');
         int num2 = (sprite.operation[5]-'0')*10+(sprite.operation[6]-'0');
         
@@ -129,6 +125,7 @@ void InitGame(void)
         printf("result %d \n ", sprite.result);
         
         printf("Expression: ");
+        
         for(int p = 0; p < 7; p++){ 
             if(p == 3) {
                 printf(" %c ", sprite.operation[p]);
@@ -285,7 +282,9 @@ void DrawGame(void){
                 
                 // Draw it to the screen 
                 DrawCircleV(poppers[i].position, POPPER_SIZE, poppers[i].color); 
-                DrawText("hi", poppers[i].position.x-7,  poppers[i].position.y-10, 20, BLACK);
+                
+                
+                DrawText(poppers[i].operation, poppers[i].position.x-35,  poppers[i].position.y-10, 20, BLACK);
               
             }
         }
