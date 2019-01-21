@@ -8,5 +8,5 @@ The program will produce a result that the user must match to one of the express
 Then the result will change and the process continues.
 
 Current build:
-![Ultra Alpha Version of Pop that!](https://i.imgur.com/n0mU7kT.gif)
+![Ultra Alpha Version of Pop that!](http://austinayers.com/pop.gif)
 
