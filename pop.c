@@ -9,8 +9,8 @@
 //----------------------------------------------------------------------------------
 
 #define NUM_MAX_POPPERS 500
-#define NUM_POPPERS 20        // current safe maximum is 110, less that 100 suggested
-#define POPPER_SIZE 20
+#define NUM_POPPERS 3        // current safe maximum is 110, less that 100 suggested
+#define POPPER_SIZE 45
 
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
@@ -35,8 +35,10 @@ typedef struct Sprite{
 
 static int screenWidth = 1280;
 static int screenHeight = 720;
-static int deadSprites = 0;
+static int correctPops = 0;
+static int incorrectPops = 0;
 static int aliveSprites = 0;
+static int globalResult = 0;
 static bool gameOver = 0;
 static bool win = 0;
 static Sprite poppers[NUM_MAX_POPPERS];
@@ -44,7 +46,7 @@ static Sprite poppers[NUM_MAX_POPPERS];
 //------------------------------------------------------------------------------------
 // Module Functions Declaration (local)
 //------------------------------------------------------------------------------------
-static void InitGame(void);                          // Initialize game
+static void InitGame(bool init);                          // Initialize game
 static void UpdateGame(void);                        // Update game (one frame)
 static void DrawGame(void);                          // Draw game (one frame)
 static void UpdateDrawFrame(void);                   // Update and Draw (one frame)
@@ -60,7 +62,7 @@ int main()
     InitWindow(screenWidth, screenHeight, "Pop that!");
     
     // Initialize game
-    InitGame();
+    InitGame(1);
     
     SetTargetFPS(60);
     
@@ -82,14 +84,20 @@ int main()
 //------------------------------------------------------------------------------------
 // Initialize game
 //------------------------------------------------------------------------------------
-void InitGame(void)
+void InitGame(bool init)
 {
-    // These fields are set here because
-    // they need to be reset on game restart
-    deadSprites = 0;
-    aliveSprites = 0;
-    gameOver = 0;
-    win = 0;
+    // if param: init true, then this 
+    // is the true start of the game
+    // and not a restart
+    if(!init) {
+        // These fields are set here because
+        // they need to be reset on game restart
+        correctPops = 0;
+        incorrectPops = 0;
+        aliveSprites = 0;
+        gameOver = 0;
+        win = 0;
+    }
     
     // Create and load each sprite into the poppers array
     for(int i = 0; i < NUM_POPPERS; i++) 
@@ -118,25 +126,9 @@ void InitGame(void)
 
         int num = (sprite.operation[0]-'0')*10+(sprite.operation[1]-'0');
         int num2 = (sprite.operation[5]-'0')*10+(sprite.operation[6]-'0');
-        
-        printf("num1 %d \n ", num);
-        printf("num2 %d \n ", num2);
+
         sprite.result = num + num2;
-        printf("result %d \n ", sprite.result);
-        
-        printf("Expression: ");
-        
-        for(int p = 0; p < 7; p++){ 
-            if(p == 3) {
-                printf(" %c ", sprite.operation[p]);
-            } else {
-                printf("%c", sprite.operation[p]);
-            }
-            
-        }  
-        printf("\n");        
-        fflush(NULL);
-        
+
         // Distribute the 3 colors below to the sprites by id
         if((sprite.id % 2) == 0){
             sprite.color = RED;
@@ -147,7 +139,6 @@ void InitGame(void)
         else if (((sprite.id % 1) == 0)){
             sprite.color = DARKBLUE;
         }
-        
         
         // Generate random x and y values
         int x = GetRandomValue(50, 1230);
@@ -175,23 +166,27 @@ void InitGame(void)
 //------------------------------------------------------------------------------------
 void UpdateGame(void){
     
+
+        
     // For all of the sprites...
     for(int i = 0; i < NUM_POPPERS; i++) {
+        
+        int pos = poppers[i].position.y;
         
         //Check if the ball was clicked at if the game is not over
         if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && 
         (CheckCollisionPointCircle(GetMousePosition(), 
-        poppers[i].position, POPPER_SIZE)) && !checkGameOver()){    
+        poppers[i].position, POPPER_SIZE)) && !checkGameOver() && (pos < 580)){    
 
             // Kill the sprite and increment the dead sprite count
             if(poppers[i].alive == 1){
                 poppers[i].alive = 0;
-                deadSprites++;
-                printf("Sprite result was: %d \n", poppers[i].result);
-
-                printf("\n");
-                fflush(NULL);
                 
+                if(poppers[i].result == globalResult){
+                   correctPops++; 
+                } else {
+                    incorrectPops++;
+                }
             }
         }  
         else {      
@@ -216,29 +211,43 @@ void UpdateGame(void){
             }
         }
         
+        if ((correctPops + incorrectPops) == NUM_POPPERS) {
+            gameOver = 1;
+            win = 0;
+        }
+        
         // Create a string to display the score text
         char score[3];
+        char wrong[3];
         
         // Convert the deadSprite count to a string
-        sprintf(score, "%d", deadSprites);
+        sprintf(score, "%d", correctPops);
+        
+        sprintf(wrong, "%d", incorrectPops);
         
         // Draw the score
         DrawText("SCORE: ", 0, 0, 25, BLACK); 
         DrawText(score, 100, 0, 25, BLACK);
+        
+        DrawText("Wrong: ", 0, 20, 25, BLACK); 
+        DrawText(wrong, 100, 20, 25, BLACK);        
+        
+
+        checkGameOver();
 
         // Write the win message when appropriate
-        if (deadSprites >= NUM_POPPERS) {
+        if (correctPops >= NUM_POPPERS) {
             win = 1;
-            DrawText("YOU WIN!", screenWidth / 2 - 160,  screenHeight / 2 - 165, 70, BLACK);
+            DrawText("YOU WIN!", 470,  screenHeight / 2 - 165, 70, BLACK);
         }
            
         // Write the loss message when appropriate           
-        if(checkGameOver() && !win) {
-            DrawText("YOU LOSE", screenWidth / 2 - 160,  screenHeight / 2 - 165, 70, BLACK); 
+        if(gameOver && !win) {
+            DrawText("YOU LOSE", 467,  screenHeight / 2 - 165, 70, BLACK); 
         }             
             
         // Write the restart message when appropriate            
-        if((gameOver) || (deadSprites >= NUM_POPPERS)){
+        if((gameOver) || (correctPops >= NUM_POPPERS)){
             DrawText("Restart?", screenWidth / 2 - 160,  screenHeight / 2, 70, BLACK);
             
             // Draw the restart button rectangle
@@ -255,7 +264,7 @@ void UpdateGame(void){
                 (CheckCollisionPointRec(GetMousePosition(), rectangle))){   
                     
                     // Restart!
-                    InitGame();    
+                    InitGame(0);    
             } 
         }            
     }    
@@ -265,7 +274,7 @@ void UpdateGame(void){
 // Draw game (one frame)
 //------------------------------------------------------------------------------------
 void DrawGame(void){
-    
+
     BeginDrawing();
     
         // Clear the background
@@ -274,20 +283,45 @@ void DrawGame(void){
         // Draw the loss line
         DrawLine(0, 600, 1280, 600, RED);   
         
+        // Draw the help text
+        DrawText("Pop the correct expressions without missing any before they all hit the red line to win!", 120, 600, 25, BLACK); 
+        
         // For each popper in the game...
         for(int i = 0; i < NUM_POPPERS; i++) {
             
             // If the one we are looking at is alive...
             if (poppers[i].alive == 1) {
-                
+            
                 // Draw it to the screen 
                 DrawCircleV(poppers[i].position, POPPER_SIZE, poppers[i].color); 
                 
-                
+                // Draw each equation in the appropriate location
                 DrawText(poppers[i].operation, poppers[i].position.x-35,  poppers[i].position.y-10, 20, BLACK);
               
             }
+        }        
+        
+        bool drawn = 0; // flag to determine when the result is drawn
+        // Find the first viable popper
+        for(int i = 0; (i < NUM_POPPERS) && !drawn; i++) {
+            // If the one we are looking at is alive...
+            if (poppers[i].alive == 1) {
+                
+   
+                DrawText("Pop the expression", 0, 40, 25, BLACK); 
+                DrawText("that results to: ", 0, 60, 25, BLACK); 
+                
+                char s[3]; 
+                sprintf(s,"%d", poppers[i].result );
+                DrawText(s, 200, 60, 25, RED); 
+                
+                drawn = 1;
+                
+                globalResult = poppers[i].result;
+            }
         }
+        
+
 
     EndDrawing();
 }
