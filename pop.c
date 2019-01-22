@@ -1,15 +1,13 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "raylib.h"
-#include "pthread.h"
-#include "stdio.h"
-#include "stdlib.h"
-
 
 //----------------------------------------------------------------------------------
 // Defines
 //----------------------------------------------------------------------------------
 
-#define NUM_MAX_POPPERS 500
-#define NUM_POPPERS 3        // current safe maximum is 110, less that 100 suggested
+#define NUM_MAX_POPPERS 110
+#define NUM_POPPERS 3        
 #define POPPER_SIZE 45
 
 //----------------------------------------------------------------------------------
@@ -26,7 +24,7 @@ typedef struct Sprite{
     int result;
 } Sprite;
 
-
+//TODO: Give each sprite a rec member for easy checking an less calculations
 
 
 //------------------------------------------------------------------------------------
@@ -172,11 +170,12 @@ void UpdateGame(void){
     for(int i = 0; i < NUM_POPPERS; i++) {
         
         int pos = poppers[i].position.y;
+        Rectangle rec = {poppers[i].position.x, poppers[i].position.y, 80, 20};
         
         //Check if the ball was clicked at if the game is not over
         if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && 
-        (CheckCollisionPointCircle(GetMousePosition(), 
-        poppers[i].position, POPPER_SIZE)) && !checkGameOver() && (pos < 580)){    
+        (CheckCollisionPointRec(GetMousePosition(), rec)) &&
+            !checkGameOver() && (pos < 580)){    
 
             // Kill the sprite and increment the dead sprite count
             if(poppers[i].alive == 1){
@@ -274,6 +273,8 @@ void UpdateGame(void){
 // Draw game (one frame)
 //------------------------------------------------------------------------------------
 void DrawGame(void){
+    
+    Vector2 size = {80,20};
 
     BeginDrawing();
     
@@ -292,11 +293,13 @@ void DrawGame(void){
             // If the one we are looking at is alive...
             if (poppers[i].alive == 1) {
             
-                // Draw it to the screen 
-                DrawCircleV(poppers[i].position, POPPER_SIZE, poppers[i].color); 
+                // Draw it to the screen                
+                Rectangle rectangle = {poppers[i].position.x, poppers[i].position.y, 80, 20};
+                
+                DrawRectangleRec(rectangle, poppers[i].color);
                 
                 // Draw each equation in the appropriate location
-                DrawText(poppers[i].operation, poppers[i].position.x-35,  poppers[i].position.y-10, 20, BLACK);
+                DrawText(poppers[i].operation, poppers[i].position.x+3,  poppers[i].position.y, 20, BLACK);
               
             }
         }        
@@ -346,6 +349,7 @@ Vector2 verifyNoCollision(Vector2 position) {
 
         // Check to see if the current position in check shares any point with
         // an existing point in the game
+        
         if(CheckCollisionCircles(position, POPPER_SIZE, poppers[i].position, POPPER_SIZE)) {
             
             // Generate random x and y values
