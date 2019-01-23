@@ -262,9 +262,9 @@ void UpdateGame(void){
             DrawText("Final score: ", screenWidth / 2 - 250,  screenHeight / 2 - 80, 70, BLACK);
             
             char finalScore[3];
-            double score = ((double)correctPops / (double)incorrectPops); //hmm, something seems off D:
-            printf("%f \n", score);
-            fflush(stdout);
+            double score = ((double)correctPops / NUM_POPPERS); //hmm, something seems off D:
+           // printf("%f \n", score);
+           // fflush(stdout);
             sprintf(finalScore, "%f", score);          
             DrawText(finalScore, screenWidth - 450,  screenHeight / 2 - 80, 70, BLACK);    
         }
