@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "raylib.h"
+#include "pop.h"
 
 //----------------------------------------------------------------------------------
 // Defines
@@ -26,6 +27,8 @@ typedef struct Sprite{
     int lifeCycle;
 } Sprite;
 
+
+
 //TODO: Give each sprite a rec member for easy checking an less calculations
 
 
@@ -33,25 +36,16 @@ typedef struct Sprite{
 // Global Variables Declaration
 //------------------------------------------------------------------------------------
 
-static int screenWidth = 1280;
-static int screenHeight = 720;
-static int correctPops = 0;
-static int incorrectPops = 0;
-static int aliveSprites = 0;
-static int globalResult = 0;
-static bool gameOver = 0;
-static bool win = 0;
-static Sprite poppers[NUM_MAX_POPPERS];
+int screenWidth = 1280;
+int screenHeight = 720;
+int correctPops = 0;
+int incorrectPops = 0;
+int aliveSprites = 0;
+int globalResult = 0;
+bool gameOver = 0;
+bool win = 0;
+Sprite poppers[NUM_MAX_POPPERS];
 
-//------------------------------------------------------------------------------------
-// Module Functions Declaration (local)
-//------------------------------------------------------------------------------------
-static void InitGame(bool init);                          // Initialize game
-static void UpdateGame(void);                        // Update game (one frame)
-static void DrawGame(void);                          // Draw game (one frame)
-static void UpdateDrawFrame(void);                   // Update and Draw (one frame)
-static Vector2 verifyNoCollision(Vector2 position);  // Check new points for collisions with old ones
-static bool checkGameOver(void);                     // Check to see game settings are set to end the game
 
 //------------------------------------------------------------------------------------
 // Main function and game loop
